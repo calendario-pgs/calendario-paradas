@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendário de Paradas Andritz</title>
+<link rel="icon" type="image/x-icon" sizes="any" href="__ANDRITZ_ICO__">
+<style>
+@font-face{font-family:'Outfit';font-style:normal;font-weight:400 800;font-display:swap;src:url(__FONT_LATIN_EXT__) format('woff2');unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:'Outfit';font-style:normal;font-weight:400 800;font-display:swap;src:url(__FONT_LATIN__) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#0075BF;--navy:#1C538A;--blue-20:#CCE3F2;--blue-10:#E6F1F9;
+  --ink:#1A1A1A;--ink-2:#3C3C40;--ink-3:#5A5A5E;--ink-4:#8A8A8E;
+  --line:#C9C8CA;--line-soft:#E4E6E9;--band:#F4F6F8;--zebra:#FAFBFC;
+  --red:#B3261E;--orange:#C25E00;--amber:#E0A100;--green:#157F3D;
+  --lab:300px;
+}
+html,body{background:#fff}
+body{font-family:"Outfit",Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button,input,select{font-family:inherit}
+a{color:var(--blue);text-decoration:none;cursor:pointer}
+a:hover{color:var(--navy);text-decoration:underline}
+
+/* ── Cabeçalho ── */
+.topbar{background:#fff;border-bottom:4px solid var(--blue)}
+.topbar-row{padding:14px 28px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:18px}
+.brand img{height:40px;width:auto;display:block}
+.brand-txt{display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line);padding-left:18px}
+.brand-txt b{font-size:15px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--navy)}
+.brand-txt span{font-size:12px;color:var(--ink-3)}
+.top-actions{margin-left:auto;display:flex;gap:10px}
+
+/* ── Barra lateral ── */
+.shell{display:flex;align-items:flex-start;min-width:0}
+.side{width:232px;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;background:#fff;border-right:1px solid var(--line);padding:6px 0 24px}
+.side-grp{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:16px 22px 6px}
+.snav{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;background:none;border:0;border-left:4px solid transparent;padding:9px 18px;font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;text-align:left}
+.snav:hover{background:var(--band)}
+.snav.on{background:var(--blue-10);border-left-color:var(--blue);color:var(--blue);font-weight:700}
+.snav .cnt{font-size:11px;font-weight:800;color:#fff;background:var(--orange);border-radius:9px;padding:0 7px;line-height:18px}
+.sopt{display:flex;align-items:center;gap:8px;padding:4px 22px;font-size:13px;color:var(--ink-2);cursor:pointer;user-select:none}
+.sopt input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.sopt .n{margin-left:auto;font-size:11.5px;color:var(--ink-4)}
+.sopt .so{font-size:11px;color:var(--blue);visibility:hidden;margin-left:4px}
+.sopt:hover .so{visibility:visible}
+.sopt.sub{font-size:12px;color:var(--ink-3)}
+.ssel{margin:2px 22px 6px;width:calc(100% - 44px);border:1px solid var(--line);border-radius:4px;padding:6px 8px;font-size:13px;background:#fff;color:var(--ink)}
+.seg{display:flex;margin:2px 22px 6px;border:1px solid var(--blue);border-radius:4px;overflow:hidden}
+.seg button{flex:1;background:#fff;border:0;border-left:1px solid var(--blue);padding:6px 4px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--blue);color:#fff}
+.seg button:not(.on):hover{background:var(--blue-10)}
+.ocu-list{padding:0 14px 0 22px;display:flex;flex-direction:column;gap:3px}
+.ocu-list div{display:flex;gap:6px;align-items:baseline;font-size:12px;color:var(--ink-3)}
+.ocu-list span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .hint{padding:2px 22px;font-size:12px;color:var(--ink-4)}
+
+/* ── Conteúdo ── */
+.main{flex:1;min-width:0;padding-bottom:40px}
+.band{background:var(--band);border-bottom:1px solid var(--line-soft);padding:20px 28px;display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.band h1{font-size:24px;font-weight:800;text-transform:uppercase;color:var(--navy);letter-spacing:.02em;line-height:1.15}
+.band p{font-size:13px;color:var(--ink-3);margin-top:4px;max-width:820px}
+.wrap{padding:20px 28px;display:flex;flex-direction:column;gap:18px}
+.card{border:1px solid var(--line);border-radius:4px;background:#fff}
+.card-h{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+.card-h h2{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--navy)}
+.card-h .sp{flex:1}
+.lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--navy)}
+.btn{background:#fff;border:1px solid var(--blue);color:var(--blue);border-radius:4px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.btn:hover{background:var(--blue-10)}
+.btn.pri{background:var(--blue);color:#fff}
+.btn.pri:hover{background:var(--navy)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.segx{display:inline-flex;border:1px solid var(--blue);border-radius:4px;overflow:hidden}
+.segx button{background:#fff;border:0;border-left:1px solid var(--blue);padding:5px 11px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer}
+.segx button:first-child{border-left:0}
+.segx button.on{background:var(--blue);color:#fff}
+.segx button:not(.on):hover{background:var(--blue-10)}
+.busca{border:1px solid var(--line);border-radius:4px;padding:6px 10px;font-size:13px;width:220px}
+.busca:focus{outline:2px solid var(--blue-20);border-color:var(--blue)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.kpi{border:1px solid var(--line);border-left:4px solid var(--kc,var(--blue));border-radius:4px;padding:12px 16px;background:#fff}
+.kpi.click{cursor:pointer}
+.kpi.click:hover{background:var(--band)}
+.kpi .v{font-size:28px;font-weight:800;color:var(--ink);line-height:1.1;margin-top:4px}
+.kpi .v small{font-size:14px;font-weight:600;color:var(--ink-3)}
+.kpi .d{font-size:12px;color:var(--ink-3);margin-top:3px}
+
+/* Legenda */
+.leg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 16px;border-bottom:1px solid var(--line-soft);font-size:12px;color:var(--ink-3);align-items:center}
+.leg i{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px}
+.leg .stripe{background:var(--blue) repeating-linear-gradient(135deg,rgba(0,0,0,.42) 0 3px,transparent 3px 6px);box-shadow:inset 0 -3px 0 var(--red)}
+.leg .sep{width:1px;height:16px;background:var(--line);margin:0 4px}
+
+/* ── Gantt ── */
+.gantt{position:relative;--lab:300px}
+.g-grid{position:absolute;top:0;bottom:0;left:var(--lab);right:0;pointer-events:none;z-index:0}
+.g-grid .mb{position:absolute;top:0;bottom:0}
+.g-grid .mb.alt{background:#F7F9FB}
+.g-grid .wk{position:absolute;top:0;bottom:0;background:#F1F2F4}
+.g-grid .ln{position:absolute;top:0;bottom:0;border-left:1px solid #ECEEF1}
+.g-grid .ln.w{border-left-color:#DADDE2}
+.g-grid .ln.m{border-left-color:#B9BEC6}
+.g-grid .ln.y{border-left:2px solid #6B7480}
+.ax .am.ay{color:var(--ink)}
+.gscroll{overflow-x:auto}
+.gscroll.alto{overflow:auto;max-height:calc(100vh - 110px)}
+.gscroll.alto .g-trk{cursor:grab}
+.gscroll.arrastando,.gscroll.arrastando *{cursor:grabbing!important;user-select:none}
+.zoomc{display:inline-flex;align-items:center;gap:6px}
+.zoomc .lbl{margin-right:2px}
+.zoomc small{font-size:11.5px;color:var(--ink-4)}
+.zb{width:28px;height:28px;border:1px solid var(--blue);background:#fff;color:var(--blue);border-radius:4px;font-size:17px;font-weight:700;line-height:1;cursor:pointer}
+.zb:hover:not(:disabled){background:var(--blue-10)}
+.zb:disabled,.btn:disabled{border-color:var(--line);color:var(--ink-4);cursor:default;background:#fff}
+.zv{min-width:46px;text-align:center;font-weight:800;color:var(--navy);font-size:13px}
+.g-grid .hoje{position:absolute;top:0;bottom:0;border-left:2px solid var(--red)}
+.g-row{position:relative;z-index:1;display:flex;align-items:stretch;min-height:36px;border-bottom:1px solid var(--line-soft)}
+.g-row.r{cursor:pointer}
+.g-row.r:hover{background:rgba(0,117,191,.05)}
+.g-lab{position:sticky;left:0;z-index:3;width:var(--lab);flex-shrink:0;display:flex;align-items:center;gap:8px;padding:4px 10px 4px 8px;border-right:1px solid var(--line);background:#fff;min-width:0}
+.g-row.r:hover .g-lab{background:#F2F8FC}
+.g-trk{position:relative;flex:1;min-width:0}
+.g-head{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);min-height:30px}
+.g-head .g-lab{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--navy);background:var(--blue-20)}
+.g-head .g-trk{background:var(--blue-20)}
+.ax span{position:absolute;top:0;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;overflow:hidden}
+.ax2 .am{height:50%!important;border-left:1px solid #fff}
+.ax2 .ad{top:50%!important;height:50%!important;font-size:10px;font-weight:700;letter-spacing:0;color:var(--ink-3);justify-content:flex-start;padding-left:2px}
+.g-load{min-height:52px;background:#fff;position:sticky;top:30px;z-index:4;border-bottom:2px solid var(--line)}
+.g-head.two{min-height:40px}
+.g-head.two~.g-load{top:40px}
+.g-load .g-lab{flex-direction:column;align-items:flex-start;justify-content:center;gap:0}
+.g-load .g-lab b{font-size:12px;color:var(--navy)}
+.g-load .g-lab small{font-size:11.5px;color:var(--ink-3)}
+.ld{position:absolute;bottom:4px;border-radius:2px 2px 0 0;max-height:calc(100% - 8px)}
+.ld.k1{background:#A9CDE8}.ld.k2{background:var(--amber)}.ld.k3{background:var(--orange)}.ld.k4{background:var(--red)}
+.ld:hover{filter:brightness(.85)}
+.g-grp{position:relative;z-index:1;display:flex;min-height:28px;background:rgba(244,246,248,.92);border-bottom:1px solid var(--line-soft)}
+.g-grp .g-lab{background:var(--band);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)}
+.g-grp .g-lab small{font-weight:600;letter-spacing:0;color:var(--ink-4);text-transform:none;margin-left:2px}
+.sw{width:4px;align-self:stretch;border-radius:2px;flex-shrink:0;margin:2px 0}
+.nm{min-width:0;flex:1;display:flex;flex-direction:column;line-height:1.25}
+.nm b{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm small{font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tg{font-style:normal;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:3px;padding:0 4px;margin-left:4px;vertical-align:1px}
+.tg.y{background:#FFF2B3;color:#7A5B00}
+.tg.b{background:var(--blue-10);color:var(--blue)}
+.eye{background:none;border:0;cursor:pointer;color:var(--ink-4);width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0}
+.eye:hover{background:var(--blue-10);color:var(--blue)}
+.eye svg{width:16px;height:16px}
+.bar{position:absolute;top:50%;height:20px;margin-top:-10px;min-width:4px;background:var(--c);border-radius:3px;overflow:hidden}
+.bar.cut-l{border-top-left-radius:0;border-bottom-left-radius:0}
+.bar.cut-r{border-top-right-radius:0;border-bottom-right-radius:0}
+.ovs{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(0,0,0,.42) 0 3px,transparent 3px 6px);box-shadow:inset 0 -3px 0 var(--red)}
+.bl{position:absolute;top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--ink-2);white-space:nowrap;pointer-events:none}
+.bl b{color:#fff;background:var(--red);border-radius:8px;padding:0 6px;font-size:10.5px;margin-left:3px}
+.nodate{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;font-style:italic;color:var(--ink-4)}
+.g-row.ocu .bar{background:#D5D7DB}
+.g-row.ocu .nm,.g-row.ocu .bl,.g-row.ocu .sw{opacity:.45}
+.g-row.ocu .eye{color:var(--orange)}
+.g-row.is-dim .nm,.g-row.is-dim .sw,.bar.b-dim,.bl.b-dim{opacity:.22}
+.g-row.is-sel{background:rgba(0,117,191,.10)!important}
+.g-row.is-sel .g-lab{box-shadow:inset 4px 0 0 var(--blue)}
+.bar.b-sel{outline:2px solid var(--navy);outline-offset:1px}
+.bar.b-ov{outline:2px solid var(--red);outline-offset:1px}
+.bar{cursor:pointer}
+.tg.g{background:var(--band);color:var(--ink-3);border:1px solid var(--line-soft)}
+.tg.gr{background:#E3F4E8;color:var(--green)}
+/* paradas que já passaram: cinza (pedido do usuário) */
+.bar.passou{background:#C9CDD3}
+.bl.passou{color:var(--ink-4)}
+.bl.passou b{background:#9AA0A8}
+.g-row.r-passou .nm{opacity:.55}
+.g-row.r-passou .sw{opacity:.35}
+.g-grid .pas{position:absolute;top:0;bottom:0;background:rgba(110,118,130,.14)}
+.ldh{position:absolute;top:3px;transform:translateX(-50%);background:var(--red);color:#fff;font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:0 5px;border-radius:3px;line-height:14px;z-index:2;pointer-events:none}
+table.t tr.passou td{color:var(--ink-4)}
+table.t tr.passou a{color:#6F8FAE}
+.pgtabs{display:flex;gap:6px}
+.pgtabs button{flex:1;background:#fff;border:1px solid var(--blue);color:var(--blue);border-radius:4px;padding:6px;font-weight:700;font-size:13px;cursor:pointer}
+.pgtabs button.on{background:var(--blue);color:#fff}
+.g-cursor{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed var(--navy);z-index:6;pointer-events:none;display:none}
+.g-cursor span{position:absolute;top:2px;left:4px;background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:3px;white-space:nowrap}
+.g-cursor.esq span{left:auto;right:4px}
+
+/* Tooltip e painel lateral */
+.tip{position:fixed;z-index:100;pointer-events:none;background:#fff;border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:4px;padding:8px 11px;font-size:12.5px;color:var(--ink-2);max-width:340px;box-shadow:0 4px 16px rgba(28,83,138,.18);display:none}
+.tip b{color:var(--ink)}
+.tip ul{margin:4px 0 0 16px}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100vw;background:#fff;border-left:1px solid var(--line);box-shadow:-6px 0 24px rgba(28,83,138,.14);z-index:60;transform:translateX(105%);transition:transform .18s ease;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+.dr-h{padding:16px 18px 12px;border-bottom:4px solid var(--blue);display:flex;gap:10px;align-items:flex-start}
+.dr-h h3{font-size:18px;font-weight:800;color:var(--navy);line-height:1.2}
+.dr-h p{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.dr-x{margin-left:auto;background:none;border:0;font-size:22px;line-height:1;color:var(--ink-3);cursor:pointer;padding:0 4px}
+.dr-b{padding:14px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:5px 10px;font-size:13px}
+.kv dt{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);padding-top:2px}
+.ovl{display:flex;flex-direction:column;gap:6px}
+.ovl a{display:block;border:1px solid var(--line-soft);border-left:4px solid var(--c);border-radius:4px;padding:6px 10px;color:var(--ink);text-decoration:none}
+.ovl a:hover{background:var(--band)}
+.ovl a small{display:block;color:var(--ink-3);font-size:12px}
+.ovl a em{font-style:normal;font-weight:700;color:var(--red)}
+.dr-acts{display:flex;flex-direction:column;gap:8px}
+.aviso{font-size:12.5px;background:#FFF8E1;border:1px solid #F0D98A;border-radius:4px;padding:8px 10px;color:#5C4500}
+
+/* Sobreposições */
+.grp-card .card-h{background:var(--band)}
+.grp-card .card-h small{font-size:12.5px;color:var(--ink-3)}
+.pico{font-size:12px;font-weight:700;color:#fff;background:var(--red);border-radius:10px;padding:1px 9px}
+.pico.k2{background:var(--amber);color:#3D2C00}.pico.k3{background:var(--orange)}
+.vazio{padding:40px;text-align:center;color:var(--ink-3)}
+
+/* Tabelas */
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{background:var(--blue-20);color:var(--navy);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;text-align:left;padding:8px 10px;white-space:nowrap}
+table.t td{padding:7px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+table.t tr:nth-child(even) td{background:var(--zebra)}
+table.t td.n{text-align:right;white-space:nowrap}
+table.t td.dt{white-space:nowrap}
+table.t tr.ocu td{color:var(--ink-4)}
+table.t .eye{display:inline-flex}
+.cor{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:0}
+.revs{display:flex;flex-direction:column;gap:12px}
+.rev{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:4px;padding:12px 16px}
+.rev b{color:var(--navy)}
+.rev p{margin-top:4px;color:var(--ink-2)}
+.rev ul{margin:6px 0 0 18px;color:var(--ink-2)}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .shell{flex-direction:column}
+  .side{width:100%;height:auto;position:static;border-right:0;border-bottom:1px solid var(--line)}
+  .band,.wrap{padding-left:16px;padding-right:16px}
+  .topbar-row{padding:12px 16px}
+  .main,.wrap>*,.card{min-width:0;max-width:100%}
+  .gscroll{overflow-x:auto;max-width:100%}
+  .busca{width:100%}
+  .gantt{min-width:820px;--lab:190px}
+  .drawer{width:100vw}
+}
+@media (max-width:600px){.kpis{grid-template-columns:1fr}.brand-txt span{display:none}.brand{gap:12px}.brand-txt{padding-left:12px}}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  .side,.top-actions,.drawer,.tip,.no-print,.g-cursor,.eye{display:none!important}
+  .band{padding:8px 0;background:#fff}
+  .wrap{padding:8px 0}
+  .g-head,.g-load,.g-lab{position:static}
+  .gscroll,.gscroll.alto{overflow:visible;max-height:none}
+  .card{break-inside:auto}
+  .g-row{break-inside:avoid}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="topbar-row">
+  <div class="brand"><img src="__LOGO__" alt="ANDRITZ"><div class="brand-txt"><b>Calendário de Paradas Andritz</b><span id="sub"></span></div></div>
+  <div class="top-actions"><button class="btn" onclick="window.print()">Imprimir</button></div>
+</div></header>
+<div class="shell">
+  <aside class="side" id="side"></aside>
+  <main class="main" id="main"></main>
+</div>
+<div class="tip" id="tip"></div>
+<div class="drawer" id="drawer"></div>
+<script>
+'use strict';
+/* ═════════════════════════════════════════════════════════════════════════════
+   DADOS — copiados à mão dos PDFs do calendário de PGs (um bloco por ano).
+   Revisão nova ou ano novo: atualizar SÓ este bloco e rodar `python _dev/build.py`
+   (ver CLAUDE.md do projeto). A mesma fábrica tem que ter o MESMO país, empresa e
+   unidade em todos os anos: é isso que junta as PGs dela numa linha só.
+   ═════════════════════════════════════════════════════════════════════════════ */
+const CALS=[
+  {ano:2026, rev:'Rev. 07', arquivo:'Calendario de PG´s 2026 - Rev.07.pdf', emitido:'28/07/2026',
+   revisoes:[],
+   nota:'O PDF não traz notas de revisão. Linhas em amarelo: LD Celulose – Indianópolis e Bracell – Lençóis Paulista L1. Klingele e a UTOP estão sem campanha; UPM Fray Bentos e MDP Colonia, sem data.',
+   paradas:[
+    {pais:'Brasil',empresa:'CMPC',unidade:'Guaíba L2',uf:'RS',campanha:18,ini:'2026-01-08',fim:'2026-01-27'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Aracruz A',uf:'ES',campanha:18,ini:'2026-01-10',fim:'2026-01-22'},
+    {pais:'Brasil',empresa:'Veracel',unidade:'Eunápolis',uf:'BA',campanha:18,ini:'2026-01-26',fim:'2026-02-05'},
+    {pais:'Brasil',empresa:'Klabin',unidade:'Monte Alegre',uf:'PR',campanha:16,ini:'2026-01-26',fim:'2026-02-05'},
+    {pais:'Brasil',empresa:'CMPC',unidade:'Guaíba L1',uf:'RS',campanha:15,ini:'2026-02-23',fim:'2026-03-07'},
+    {pais:'Brasil',empresa:'Cenibra',unidade:'Linha 2',uf:'MG',campanha:16,ini:'2026-03-01',fim:'2026-03-15'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Imperatriz',uf:'MA',campanha:16,ini:'2026-03-01',fim:'2026-03-16'},
+    {pais:'Brasil',empresa:'Klingele',unidade:'Nova Campina',uf:'SP',campanha:null,ini:'2026-03-20',fim:'2026-03-31'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Ribas do Rio Pardo (Cerrado)',uf:'MS',campanha:13,ini:'2026-03-22',fim:'2026-04-01'},
+    {pais:'Brasil',empresa:'Eldorado',unidade:'UTOP – Usina Termelétrica Onça Pintada',uf:'MS',campanha:null,ini:'2026-03-23',fim:'2026-04-02'},
+    {pais:'Brasil',empresa:'Cenibra',unidade:'Linha 1',uf:'MG',campanha:16,ini:'2026-03-16',fim:'2026-03-31'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Três Lagoas H1',uf:'MS',campanha:15,ini:'2026-04-05',fim:'2026-04-14'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Três Lagoas H2',uf:'MS',campanha:15,ini:'2026-04-15',fim:'2026-05-04'},
+    {pais:'Brasil',empresa:'Sylvamo',unidade:'Mogi Guaçu',uf:'SP',campanha:13,ini:'2026-05-01',fim:'2026-05-10'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Mucuri L2',uf:'BA',campanha:18,ini:'2026-05-03',fim:'2026-05-14'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Jacareí',uf:'SP',campanha:18,ini:'2026-05-11',fim:'2026-06-02'},
+    {pais:'Brasil',empresa:'Sylvamo',unidade:'Luís Antônio',uf:'SP',campanha:15,ini:'2026-06-15',fim:'2026-06-24'},
+    {pais:'Brasil',empresa:'Bracell',unidade:'Camaçari',uf:'BA',campanha:13,ini:'2026-05-05',fim:'2026-05-15'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Aracruz C',uf:'ES',campanha:15,ini:'2026-07-26',fim:'2026-08-06'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Mucuri L1',uf:'BA',campanha:18,ini:'2026-08-16',fim:'2026-09-06'},
+    {pais:'Brasil',empresa:'Klabin',unidade:'Otacílio Costa',uf:'SC',campanha:16,ini:'2026-08-17',fim:'2026-08-29'},
+    {pais:'Brasil',empresa:'LD Celulose',unidade:'Indianópolis',uf:'MG',campanha:15,ini:'2026-10-06',fim:'2026-10-15',destaque:true},
+    {pais:'Brasil',empresa:'Bracell',unidade:'Lençóis Paulista L1',uf:'SP',campanha:18,ini:'2026-10-19',fim:'2026-10-26',destaque:true},
+    {pais:'Chile',empresa:'CMPC',unidade:'Laja',campanha:14,ini:'2026-05-04',fim:'2026-05-18'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L3',campanha:12,ini:'2026-01-05',fim:'2026-01-24'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Valdivia',campanha:14,ini:'2026-08-05',fim:'2026-08-20'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Constitución',campanha:14,ini:'2026-06-05',fim:'2026-06-20'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Arauco L3 – MAPA',campanha:13,ini:'2026-09-05',fim:'2026-09-20'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Arauco L2',campanha:14,ini:'2026-04-05',fim:'2026-04-20'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L1',campanha:13,ini:'2026-11-02',fim:'2026-11-15'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L2',campanha:13,ini:'2026-08-17',fim:'2026-09-03'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Pacífico',campanha:12,ini:'2026-11-30',fim:'2026-12-15'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Nueva Aldea',campanha:15,ini:'2026-11-20',fim:'2026-12-07'},
+    {pais:'Uruguai',empresa:'UPM',unidade:'Fray Bentos',campanha:null,ini:null,fim:null,obs:'Sem data no calendário'},
+    {pais:'Uruguai',empresa:'MDP',unidade:'Colonia (Montes del Plata)',campanha:null,ini:null,fim:null,obs:'Sem data no calendário'},
+    {pais:'Uruguai',empresa:'UPM',unidade:'Paso de los Toros (Taurus)',campanha:18,ini:'2026-10-11',fim:'2026-10-23'},
+    {pais:'Argentina',empresa:'Arauco',unidade:'Puerto Esperanza',campanha:13,ini:'2026-03-04',fim:'2026-03-18'}
+  ]},
+  {ano:2027, rev:'Rev. 01', arquivo:'CALENDARIO DE PG´S 2027_REV 01.pdf', emitido:'22/10/2026',
+   revisoes:[
+    {t:'Revisão 01',txt:'PG Bracell – Linha 02 – de 05/03/27 para 05/04/27 e também modificado Bracell Linha 02 para a mesma data, porque 2026 não teve a parada geral. (Samoel Moreira)',obs:'O texto repete “Linha 02”; pelo calendário, as linhas 1 e 2 de Lençóis Paulista ficaram em 05/04/27.'},
+    {t:'Revisão 2',txt:'Alterada a data de início e término da Klabin Ortigueira.'},
+    {t:'Revisão 03',itens:['Suzano Cerrado – PG 2027 de 30/05 a 10/06/2027','Klabin Puma – PG 2027 de 22/02 a 04/03/2027','Suzano – Suzano – PG 2027 de 28/03 a 04/04/2027','Arauco – MAPA – Linha 3 – PG 2027 de 08/03 a … (texto cortado no PDF)']},
+    {t:'Revisão 03 (cont.)',itens:['Suzano Três Lagoas – PG 2027 de 20/06 a 20/07/2027','Klabin Monte Alegre – PG 2027 de 03/05 a 14/05/2027']}
+   ],
+   nota:'Apesar do nome “REV 01”, o arquivo já traz as notas das revisões 2 e 3.',
+   paradas:[
+    {pais:'Brasil',empresa:'Suzano',unidade:'Mucuri L1',uf:'BA',campanha:18,ini:null,fim:null,obs:'Sem parada em 2027'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Limeira',uf:'SP',campanha:15,ini:'2027-01-19',fim:'2027-01-29'},
+    {pais:'Brasil',empresa:'Klabin',unidade:'Ortigueira (Puma)',uf:'PR',campanha:15,ini:'2027-02-22',fim:'2027-03-04'},
+    {pais:'Brasil',empresa:'Eldorado',unidade:'Três Lagoas',uf:'MS',campanha:18,ini:'2027-03-08',fim:'2027-03-18'},
+    {pais:'Brasil',empresa:'Klingele',unidade:'Nova Campina',uf:'SP',campanha:12,ini:'2027-03-12',fim:'2027-03-24'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Suzano',uf:'SP',campanha:14,ini:'2027-03-28',fim:'2027-04-04',destaque:true},
+    {pais:'Brasil',empresa:'Bracell',unidade:'Lençóis Paulista L1',uf:'SP',campanha:15,ini:'2027-04-05',fim:'2027-04-15'},
+    {pais:'Brasil',empresa:'Bracell',unidade:'Lençóis Paulista L2',uf:'SP',campanha:15,ini:'2027-04-05',fim:'2027-04-15'},
+    {pais:'Brasil',empresa:'Sylvamo',unidade:'Mogi Guaçu',uf:'SP',campanha:12,ini:'2027-05-01',fim:'2027-05-10'},
+    {pais:'Brasil',empresa:'Klabin',unidade:'Monte Alegre',uf:'PR',campanha:16,ini:'2027-05-03',fim:'2027-05-14',destaque:true},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Aracruz B',uf:'ES',campanha:18,ini:'2027-05-11',fim:'2027-05-23'},
+    {pais:'Brasil',empresa:'Sylvamo',unidade:'Luís Antônio',uf:'SP',campanha:12,ini:'2027-05-14',fim:'2027-05-24'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Ribas do Rio Pardo (Cerrado)',uf:'MS',campanha:15,ini:'2027-05-30',fim:'2027-06-10',destaque:true},
+    {pais:'Brasil',empresa:'CMPC',unidade:'Guaíba L1',uf:'RS',campanha:15,ini:'2027-06-07',fim:'2027-06-16'},
+    {pais:'Brasil',empresa:'Bracell',unidade:'Camaçari',uf:'BA',campanha:13,ini:'2027-06-17',fim:'2027-06-17'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Três Lagoas H1',uf:'MS',campanha:18,ini:'2027-06-20',fim:'2027-07-04',destaque:true},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Três Lagoas H2',uf:'MS',campanha:18,ini:'2027-07-05',fim:'2027-07-20',destaque:true},
+    {pais:'Brasil',empresa:'Veracel',unidade:'Eunápolis',uf:'BA',campanha:18,ini:'2027-08-09',fim:'2027-08-19',destaque:true},
+    {pais:'Brasil',empresa:'Cenibra',unidade:'Linha 2',uf:'MG',campanha:16,ini:'2027-07-01',fim:'2027-07-15'},
+    {pais:'Brasil',empresa:'CMPC',unidade:'Guaíba L2',uf:'RS',campanha:18,ini:'2027-07-11',fim:'2027-07-21'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Aracruz A',uf:'ES',campanha:18,ini:'2027-07-11',fim:'2027-07-23'},
+    {pais:'Brasil',empresa:'Smurfit Westrock',unidade:'Três Barras',uf:'SC',campanha:12,ini:'2027-07-12',fim:'2027-07-31'},
+    {pais:'Brasil',empresa:'Cenibra',unidade:'Linha 1',uf:'MG',campanha:16,ini:'2027-07-16',fim:'2027-07-31'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Imperatriz',uf:'MA',campanha:16,ini:'2027-09-01',fim:'2027-09-10'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Aracruz C',uf:'ES',campanha:15,ini:'2027-09-06',fim:'2027-09-18'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Mucuri L2',uf:'BA',campanha:18,ini:'2027-11-03',fim:'2027-11-12'},
+    {pais:'Brasil',empresa:'Suzano',unidade:'Jacareí',uf:'SP',campanha:18,ini:'2027-11-05',fim:'2027-11-16'},
+    {pais:'Brasil',empresa:'Klabin',unidade:'Otacílio Costa',uf:'SC',campanha:15,ini:'2027-12-05',fim:'2027-12-15'},
+    {pais:'Brasil',empresa:'LD Celulose',unidade:'Indianópolis',uf:'MG',campanha:15,ini:'2027-12-05',fim:'2027-12-15'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L3',campanha:12,ini:'2027-01-06',fim:'2027-01-25'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Arauco L3 – MAPA',campanha:13,ini:'2027-03-08',fim:'2027-03-20',destaque:true},
+    {pais:'Chile',empresa:'Arauco',unidade:'Arauco L2',campanha:14,ini:'2027-06-05',fim:'2027-06-20'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Laja',campanha:14,ini:'2027-07-04',fim:'2027-07-18'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Constitución',campanha:14,ini:'2027-08-05',fim:'2027-08-20'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L2',campanha:13,ini:'2027-09-15',fim:'2027-09-30'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Nueva Aldea',campanha:13,ini:null,fim:null,obs:'Sem parada em 2027'},
+    {pais:'Chile',empresa:'Arauco',unidade:'Valdivia',campanha:14,ini:'2027-10-05',fim:'2027-10-20'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Pacífico',campanha:12,ini:'2027-11-30',fim:'2027-12-15'},
+    {pais:'Chile',empresa:'CMPC',unidade:'Santa Fé L1',campanha:13,ini:'2027-12-02',fim:'2027-12-15'},
+    {pais:'Uruguai',empresa:'UPM',unidade:'Fray Bentos',campanha:18,ini:'2027-04-12',fim:'2027-04-22'},
+    {pais:'Uruguai',empresa:'MDP',unidade:'Colonia (Montes del Plata)',campanha:18,ini:'2027-05-09',fim:'2027-05-19'},
+    {pais:'Uruguai',empresa:'UPM',unidade:'Paso de los Toros (Taurus)',campanha:18,ini:null,fim:null,obs:'Sem parada em 2027'},
+    {pais:'Argentina',empresa:'Arauco',unidade:'Puerto Esperanza',campanha:13,ini:'2027-04-04',fim:'2027-04-18'},
+    {pais:'Colômbia',empresa:'Smurfit Westrock',unidade:'(fábrica não informada)',campanha:null,ini:null,fim:null,obs:'Sem data no calendário'}
+  ]}
+];
+// DDW e bombas de cavaco da fábrica na Base Instalada do projeto 2 (Controle Itens de consumo), copiados em
+// 28/10/2026 — cópia, não leitura. Chave = id da fábrica (slug de "país empresa unidade"); chave errada é avisada no console.
+const ANDRITZ={
+  'brasil-klabin-ortigueira-puma':'14 DDW · 6 bombas',
+  'brasil-eldorado-tres-lagoas':'8 DDW · 3 bombas',
+  'brasil-suzano-suzano':'3 bombas',
+  'brasil-bracell-lencois-paulista-l1':'5 DDW · 3 bombas (Lwarcel)',
+  'brasil-bracell-lencois-paulista-l2':'14 DDW · 12 bombas (Bracell Star)',
+  'brasil-suzano-ribas-do-rio-pardo-cerrado':'10 DDW · 4 bombas',
+  'brasil-suzano-tres-lagoas-h1':'8 DDW · 3 bombas',
+  'brasil-suzano-tres-lagoas-h2':'8 DDW · 4 bombas',
+  'brasil-veracel-eunapolis':'8 DDW · 3 bombas',
+  'brasil-suzano-aracruz-a':'9 DDW (Aracruz, linha não informada)',
+  'brasil-suzano-aracruz-c':'9 DDW (Aracruz, linha não informada)',
+  'brasil-smurfit-westrock-tres-barras':'1 DDW (Rigesa)',
+  'brasil-suzano-imperatriz':'1 DDW',
+  'brasil-suzano-mucuri-l1':'8 DDW (Mucuri, linha não informada)',
+  'brasil-suzano-mucuri-l2':'8 DDW (Mucuri, linha não informada)',
+  'brasil-suzano-jacarei':'2 DDW',
+  'chile-cmpc-santa-fe-l1':'10 DDW (Santa Fé, linha não informada)',
+  'chile-cmpc-santa-fe-l2':'10 DDW (Santa Fé, linha não informada)',
+  'chile-cmpc-santa-fe-l3':'10 DDW (Santa Fé, linha não informada)',
+  'chile-arauco-arauco-l3-mapa':'8 DDW',
+  'chile-cmpc-laja':'2 DDW',
+  'uruguai-upm-fray-bentos':'9 DDW',
+  'uruguai-mdp-colonia-montes-del-plata':'8 DDW',
+  'uruguai-upm-paso-de-los-toros-taurus':'9 DDW',
+  'colombia-smurfit-westrock-fabrica-nao-informada':'1 DDW (Smurfit)'
+};
+/* ═════════════════════════════════ fim dos dados ═════════════════════════════ */
+
+const PAISES=['Brasil','Chile','Uruguai','Argentina','Colômbia'];
+const COR_PAIS={'Brasil':'#0075BF','Chile':'#7A4FB8','Uruguai':'#13906A','Argentina':'#B88400','Colômbia':'#6B7280'};
+const COR_EMP={'Suzano':'#0075BF','Klabin':'#157F3D','Bracell':'#C25E00','CMPC':'#7A4FB8','Arauco':'#9C5B2E','Eldorado':'#B88400','Veracel':'#13906A','Cenibra':'#C2417F','Sylvamo':'#00838F','Smurfit Westrock':'#5A5A5E','UPM':'#3949AB','MDP':'#8D6E63','Klingele':'#7C8B1A','LD Celulose':'#546E7A'};
+const MES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const MES_L=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const DOW=['dom','seg','ter','qua','qui','sex','sáb'];
+const DIA=86400000;
+const ICO={
+  eye:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+};
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const iso2d=s=>Math.round(Date.UTC(+s.slice(0,4),+s.slice(5,7)-1,+s.slice(8,10))/DIA);
+const d2date=d=>new Date(d*DIA);
+const p2=n=>String(n).padStart(2,'0');
+const fmt=d=>{const x=d2date(d);return p2(x.getUTCDate())+'/'+p2(x.getUTCMonth()+1)+'/'+x.getUTCFullYear();};
+const fmtC=d=>{const x=d2date(d);return p2(x.getUTCDate())+'/'+p2(x.getUTCMonth()+1);};
+const dow=d=>DOW[d2date(d).getUTCDay()];
+const per=(a,b)=>a===b?fmtC(a):fmtC(a)+' a '+fmtC(b);
+const plural=(n,s,p)=>n+' '+(n===1?s:p);
+const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const meses=(a,b)=>Math.round((b-a)/30.44);
+
+/* ── Modelo: fábrica (uma linha) × parada (uma barra por ano) ── */
+const ANOS=CALS.map(c=>c.ano).sort();
+const D0=iso2d(ANOS[0]+'-01-01'), D1=iso2d(ANOS[ANOS.length-1]+'-12-31');
+const FAB=new Map(), P=[];
+CALS.forEach((cal,ci)=>cal.paradas.forEach((x,i)=>{
+  const fid=slug(x.pais+' '+x.empresa+' '+x.unidade);
+  let f=FAB.get(fid);
+  if(!f){ f={id:fid,pais:x.pais,empresa:x.empresa,unidade:x.unidade,uf:x.uf,nome:x.empresa+' — '+x.unidade,andritz:ANDRITZ[fid]||'',pgs:[]}; FAB.set(fid,f); }
+  const a=x.ini?iso2d(x.ini):null, b=x.fim?iso2d(x.fim):a;
+  const p=Object.assign({},x,{id:fid+'-'+cal.ano,ano:cal.ano,cal,f,a,b,dias:a==null?0:b-a+1,nome:f.nome});
+  f.pgs.push(p); P.push(p);
+}));
+FAB.forEach(f=>f.pgs.sort((x,y)=>x.ano-y.ano));
+// ordem do calendário: a do ano mais recente; fábricas que só aparecem em anos anteriores vão depois
+{ let k=0; [...CALS].sort((x,y)=>y.ano-x.ano).forEach(cal=>cal.paradas.forEach(x=>{ const f=FAB.get(slug(x.pais+' '+x.empresa+' '+x.unidade)); if(f.ord==null) f.ord=k++; })); }
+Object.keys(ANDRITZ).forEach(k=>{ if(!FAB.has(k)) console.warn('ANDRITZ: fábrica não encontrada:',k); });
+const PID=Object.fromEntries(P.map(p=>[p.id,p]));
+const HOJE=Math.floor(Date.now()/DIA);
+// O que já passou pesa menos (pedido do usuário, 28/10/2026): fica em cinza e, por padrão, fora das contas
+const passou=p=>p.a!=null&&p.b<HOJE;
+const andamento=p=>p.a!=null&&p.a<=HOJE&&p.b>=HOJE;
+const situacao=p=>p.a==null?'':passou(p)?'já aconteceu':andamento(p)?'em andamento':'começa em '+plural(p.a-HOJE,'dia','dias');
+const ANO_HOJE=d2date(HOJE).getUTCFullYear();
+const INI_FOCO=(()=>{ const x=d2date(HOJE); return Math.round(Date.UTC(x.getUTCFullYear(),x.getUTCMonth(),1)/DIA); })();   // "de hoje em diante" começa no dia 1º do mês atual
+const prevPg=p=>{ const L=p.f.pgs.filter(x=>x.a!=null&&x.ano<p.ano); return L[L.length-1]||null; };
+
+/* ── Preferências do usuário (só neste navegador) ── */
+const LS='pgcal';
+const UI=Object.assign({view:'cal',anoSel:'hoje',zoom:'ano',zoomX:1,ocultas:[],paises:{},soAndritz:false,semData:true,verOcultas:false,ordem:'data',agrupar:true,cor:'pais',verPassadas:true,contarPassadas:false},lsGet(),{q:''});
+if(!UI.v){ UI.anoSel='hoje'; UI.v=2; }   // quem já usava abre uma vez em "de hoje em diante"
+function lsGet(){ try{ return JSON.parse(localStorage.getItem(LS)||localStorage.getItem('pgcal_2027')||'{}')||{}; }catch(e){ return {}; } }
+function save(){ try{ const o=Object.assign({},UI); delete o.q; localStorage.setItem(LS,JSON.stringify(o)); }catch(e){} }
+UI.ocultas=(UI.ocultas||[]).filter(id=>FAB.has(id));
+const FOCO_OK=INI_FOCO>=D0&&INI_FOCO<=D1;   // calendários cobrem hoje? senão "de hoje em diante" vira "tudo"
+if(UI.anoSel==='hoje'&&!FOCO_OK) UI.anoSel='todos';
+if(UI.anoSel!=='todos'&&UI.anoSel!=='hoje'&&!ANOS.includes(+UI.anoSel)) UI.anoSel='todos';
+let SEL=null, C=null;
+
+const umAno=()=>UI.anoSel!=='todos'&&UI.anoSel!=='hoje';
+const anosAtivos=()=>umAno()?[+UI.anoSel]:ANOS;
+const isOcu=f=>UI.ocultas.includes(f.id);
+function passaF(f){
+  if(UI.paises[f.pais]===false) return false;
+  if(UI.soAndritz&&!f.andritz) return false;
+  if(UI.q&&!norm(f.nome+' '+(f.uf||'')+' '+f.pais).includes(norm(UI.q))) return false;
+  return true;
+}
+function passaP(p){
+  if(!passaF(p.f)||!anosAtivos().includes(p.ano)) return false;
+  if(p.a==null) return UI.semData&&(UI.anoSel!=='hoje'||p.ano>=ANO_HOJE);
+  if(!UI.verPassadas&&passou(p)) return false;
+  if(UI.anoSel==='hoje'&&p.b<INI_FOCO) return false;
+  return true;
+}
+const cor=f=>UI.cor==='empresa'?(COR_EMP[f.empresa]||'#6B7280'):COR_PAIS[f.pais];
+
+/* ── Sobreposições (só paradas visíveis, de fábrica não escondida, com data) ── */
+function juntar(L){ const s=[...L].sort((x,y)=>x.a-y.a), r=[]; s.forEach(x=>{ const u=r[r.length-1]; if(u&&x.a<=u.b+1) u.b=Math.max(u.b,x.b); else r.push({a:x.a,b:x.b}); }); return r; }
+function calc(){
+  const A=P.filter(p=>passaP(p)&&!isOcu(p.f)&&p.a!=null&&(UI.contarPassadas||!passou(p)));
+  const ov=new Map(A.map(p=>[p.id,[]]));
+  for(let i=0;i<A.length;i++) for(let j=i+1;j<A.length;j++){
+    const p=A[i],q=A[j],a=Math.max(p.a,q.a),b=Math.min(p.b,q.b);
+    if(a<=b){ ov.get(p.id).push({o:q,a,b}); ov.get(q.id).push({o:p,a,b}); }
+  }
+  ov.forEach(L=>L.sort((x,y)=>x.a-y.a));
+  const segs=new Map(A.map(p=>[p.id,juntar(ov.get(p.id))]));
+  const dias=[]; for(let d=D0;d<=D1;d++) dias.push(A.filter(p=>p.a<=d&&p.b>=d));
+  const trechos=[];
+  dias.forEach((L,k)=>{ const key=L.map(p=>p.id).join('|'), t=trechos[trechos.length-1];
+    if(t&&t.key===key) t.b=D0+k; else trechos.push({key,a:D0+k,b:D0+k,L}); });
+  const pico=Math.max(0,...dias.map(L=>L.length));
+  const picos=pico>1?trechos.filter(t=>t.L.length===pico):[];
+  const S=[...A].sort((x,y)=>x.a-y.a||x.b-y.b), gs=[]; let g=null;
+  S.forEach(p=>{ if(g&&p.a<=g.b){ g.L.push(p); g.b=Math.max(g.b,p.b); } else { g={a:p.a,b:p.b,L:[p]}; gs.push(g); } });
+  const grupos=gs.filter(g=>g.L.length>1);
+  grupos.forEach(g=>{ const sub=trechos.filter(t=>t.a>=g.a&&t.b<=g.b); g.pico=Math.max(...sub.map(t=>t.L.length)); g.picos=sub.filter(t=>t.L.length===g.pico); });
+  const pares=[]; A.forEach(p=>ov.get(p.id).forEach(x=>{ if(p.id<x.o.id) pares.push({p,q:x.o,a:x.a,b:x.b}); }));
+  pares.sort((x,y)=>x.a-y.a||y.b-x.b);
+  return {A,ov,segs,dias,trechos,pico,picos,grupos,pares,ativo:new Set(A.map(p=>p.id))};
+}
+const naData=d=>(d>=D0&&d<=D1)?C.dias[d-D0]:[];
+const ovIds=id=>new Set(C.ativo.has(id)?C.ov.get(id).map(x=>x.o.id):[]);
+
+// ordem por data = pela próxima parada; fábrica só com parada que já passou vai para o fim
+const primeiraData=(f,pgs)=>{ const L=pgs.filter(p=>p.a!=null), V=L.filter(p=>!passou(p));
+  return V.length?Math.min(...V.map(p=>p.a)):L.length?1e8+Math.max(...L.map(p=>p.a)):1e9; };
+function ordenarF(L){   // L = [{f,pgs}]
+  const k=UI.ordem;
+  return [...L].sort((x,y)=>k==='cal'?x.f.ord-y.f.ord
+    :k==='emp'?x.f.empresa.localeCompare(y.f.empresa,'pt')||x.f.unidade.localeCompare(y.f.unidade,'pt')
+    :primeiraData(x.f,x.pgs)-primeiraData(y.f,y.pgs)||x.f.ord-y.f.ord);
+}
+function faixa(){
+  if(UI.anoSel==='todos') return [D0,D1];
+  if(UI.anoSel==='hoje') return [INI_FOCO,D1];
+  const y=UI.anoSel, T={t1:['01-01','03-31'],t2:['04-01','06-30'],t3:['07-01','09-30'],t4:['10-01','12-31']}[UI.zoom];
+  return T?[iso2d(y+'-'+T[0]),iso2d(y+'-'+T[1])]:[iso2d(y+'-01-01'),iso2d(y+'-12-31')];
+}
+
+/* ── Gantt (calendário e grupos de sobreposição) ── */
+function mesesDe(r0,r1){
+  const r=[]; let x=d2date(r0), m=Math.round(Date.UTC(x.getUTCFullYear(),x.getUTCMonth(),1)/DIA);
+  while(m<=r1){ const z=d2date(m), nx=Math.round(Date.UTC(z.getUTCFullYear(),z.getUTCMonth()+1,1)/DIA); r.push({a:Math.max(m,r0),b:Math.min(nx-1,r1),m:z.getUTCMonth(),y:z.getUTCFullYear()}); m=nx; }
+  return r;
+}
+// pxd = largura de um dia em pixels: decide o que cabe no eixo (nome do mês, número do dia) e se pinta fim de semana
+function eixo(r0,r1,pxd){
+  const n=r1-r0+1, pct=d=>(d-r0)/n*100, M=mesesDe(r0,r1), fino=pxd>=7, passo=pxd>=16?1:7, varios=M[0].y!==M[M.length-1].y;
+  let grid='', ax='';
+  M.forEach((m,k)=>{
+    const L=pct(m.a), W=pct(m.b+1)-L, wpx=(m.b-m.a+1)*pxd, yy=(varios&&(m.m===0||k===0))?' '+String(m.y).slice(2):'';
+    grid+=`<div class="mb${k%2?' alt':''}" style="left:${L}%;width:${W}%"></div>`;
+    ax+=`<span class="am${yy?' ay':''}" style="left:${L}%;width:${W}%">${wpx>110?MES_L[m.m]+(varios?' '+m.y:''):wpx>(yy?38:24)?MES[m.m]+yy:''}</span>`;
+  });
+  for(let d=r0;d<=r1;d++){
+    const x=d2date(d), wd=x.getUTCDay();
+    if(pxd>=5&&(wd===6||(wd===0&&d===r0))) grid+=`<div class="wk" style="left:${pct(d)}%;width:${pct(Math.min(d+(wd===6?2:1),r1+1))-pct(d)}%"></div>`;
+    // grade: uma linha por dia; segunda-feira, início do mês e virada do ano mais marcados
+    if(d!==r0) grid+=`<div class="ln ${x.getUTCDate()===1?(x.getUTCMonth()===0?'y':'m'):wd===1?'w':'d'}" style="left:${pct(d)}%"></div>`;
+    if(fino&&(passo===1||wd===1)) ax+=`<span class="ad" style="left:${pct(d)}%;width:${pct(Math.min(d+passo,r1+1))-pct(d)}%">${p2(x.getUTCDate())}</span>`;
+  }
+  if(HOJE>r0) grid=`<div class="pas" style="left:0;width:${Math.min(100,pct(Math.min(HOJE,r1+1)))}%"></div>`+grid;   // passado sombreado
+  if(HOJE>=r0&&HOJE<=r1) grid+=`<div class="hoje" style="left:${pct(HOJE)}%" title="Hoje: ${fmt(HOJE)}"></div>`;
+  return {grid,ax,fino};
+}
+// Uma linha = uma fábrica, com uma barra por PG (pgs = as PGs que entram nesta linha)
+function linhaHtml(f,pgs,r0,r1,mini){
+  const n=r1-r0+1, pct=d=>(d-r0)/n*100, ocu=isOcu(f);
+  const selOn=SEL&&C.ativo.has(SEL), ovs=selOn?ovIds(SEL):null;
+  let cls='g-row r'+(ocu?' ocu':'')+(pgs.some(p=>p.a!=null)&&pgs.every(p=>p.a==null||passou(p))?' r-passou':'');
+  if(selOn&&!mini) cls+=pgs.some(p=>p.id===SEL)?' is-sel':pgs.some(p=>ovs.has(p.id))?' is-ov':' is-dim';
+  else if(pgs.some(p=>p.id===SEL)) cls+=' is-sel';
+  let trk='', nb=0;
+  const datadas=pgs.filter(p=>p.a!=null);
+  datadas.forEach(p=>{
+    if(p.b<r0||p.a>r1) return;
+    nb++;
+    const ativo=C.ativo.has(p.id), nov=ativo?C.ov.get(p.id).length:0;
+    const a=Math.max(p.a,r0), b=Math.max(a,Math.min(p.b,r1)), L=pct(a), W=pct(b+1)-L, w=b-a+1;
+    let seg=''; if(ativo) C.segs.get(p.id).forEach(s=>{ const sa=Math.max(s.a,a), sb=Math.min(s.b,b); if(sa<=sb) seg+=`<i class="ovs" style="left:${(sa-a)/w*100}%;width:${(sb-sa+1)/w*100}%"></i>`; });
+    const bc=selOn&&!mini?(p.id===SEL?' b-sel':ovs.has(p.id)?' b-ov':' b-dim'):'';
+    const dir=L+W<78;
+    trk+=`<div class="bar${bc}${passou(p)?' passou':''}${p.a<r0?' cut-l':''}${p.b>r1?' cut-r':''}" style="left:${L}%;width:${W}%;--c:${cor(f)}" data-id="${p.id}">${seg}</div>`
+       +`<span class="bl${bc}${passou(p)?' passou':''}" style="${dir?`left:calc(${L+W}% + 6px)`:`right:calc(${100-L}% + 6px)`}">${per(p.a,p.b)}${nov?`<b title="Ao mesmo tempo que outras">${nov}</b>`:''}</span>`;
+  });
+  if(!nb){
+    const txt=pgs.map(p=>p.a==null?(anosAtivos().length>1?p.ano+': ':'')+(p.obs||'sem data'):(p.b<r0?'← ':'')+per(p.a,p.b)+(p.a>r1?' →':'')).join(' · ');
+    trk=`<span class="nodate">${esc(txt)}</span>`;
+  }
+  // texto de baixo: UF, duração (uma PG) ou intervalo entre as PGs (duas ou mais)
+  let sub=[f.uf];
+  if(mini&&datadas.length===1) sub.push(plural(datadas[0].dias,'dia','dias'));
+  else if(datadas.length>=2) sub.push('↔ '+meses(datadas[0].a,datadas[datadas.length-1].a)+' meses');
+  else if(datadas.length===1) sub.push(plural(datadas[0].dias,'dia','dias'));
+  sub=sub.filter(Boolean).join(' · ');
+  const dest=pgs.filter(p=>p.destaque);
+  const tags=(mini?pgs.map(p=>`<em class="tg g">PG ${p.ano}</em>`).join(''):'')
+            +(dest.length?`<em class="tg y" title="Linha em amarelo no calendário ${dest.map(p=>p.ano).join(' e ')}: data alterada nas revisões">alterada</em>`:'')
+            +(f.andritz?`<em class="tg b" title="Na base do Controle de Itens de Consumo: ${esc(f.andritz)}">DDW/bomba</em>`:'');
+  const alvo=(pgs.find(p=>p.id===SEL)||datadas.find(p=>C.ativo.has(p.id))||pgs[0]).id;
+  return `<div class="${cls}" data-sel="${alvo}"><div class="g-lab"><button class="eye" title="${ocu?'Mostrar de novo':'Esconder'} esta fábrica" data-eye="${f.id}">${ocu?ICO.eyeOff:ICO.eye}</button>`
+    +`<span class="sw" style="background:${cor(f)}"></span><div class="nm"><b title="${esc(f.nome)}">${esc(f.nome)}</b><small title="${datadas.length>=2?'↔ = intervalo entre o início das PGs':''}">${esc(sub)}${tags}</small></div></div><div class="g-trk">${trk}</div></div>`;
+}
+function ganttHtml(linhas,r0,r1,opt){   // linhas = [{f,pgs}]
+  opt=opt||{};
+  const n=r1-r0+1, pct=d=>(d-r0)/n*100, trk=opt.trk||trkFit(), E=eixo(r0,r1,trk/n), pico=opt.pico||C.pico;
+  let load='';
+  C.trechos.forEach((t,k)=>{ if(!t.L.length||t.b<r0||t.a>r1) return; if(opt.so&&!t.L.some(p=>opt.so.has(p.id))) return;
+    const a=Math.max(t.a,r0), b=Math.min(t.b,r1), q=t.L.length;
+    load+=`<i class="ld k${Math.min(q,4)}" data-tr="${k}" style="left:${pct(a)}%;width:${pct(b+1)-pct(a)}%;height:${Math.max(18,q/Math.max(C.pico,1)*100)}%"></i>`; });
+  if(HOJE>=r0&&HOJE<=r1) load+=`<span class="ldh" style="left:${pct(HOJE)}%">hoje</span>`;   // etiqueta da linha de hoje
+  let body='';
+  if(opt.grupos){
+    PAISES.forEach(pa=>{ const L=linhas.filter(x=>x.f.pais===pa); if(!L.length) return;
+      body+=`<div class="g-grp"><div class="g-lab">${pa}<small>· ${plural(L.length,'fábrica','fábricas')}</small></div><div class="g-trk"></div></div>`;
+      L.forEach(x=>body+=linhaHtml(x.f,x.pgs,r0,r1,opt.mini)); });
+  } else linhas.forEach(x=>body+=linhaHtml(x.f,x.pgs,r0,r1,opt.mini));
+  return `<div class="gantt" data-r="${r0},${r1}"${opt.trk?` style="width:calc(var(--lab) + ${Math.round(opt.trk)}px)"`:''}><div class="g-grid">${E.grid}</div>`
+    +`<div class="g-row g-head${E.fino?' two':''}"><div class="g-lab">${opt.mini?'Parada':'Fábrica'}</div><div class="g-trk ax${E.fino?' ax2':''}">${E.ax}</div></div>`
+    +`<div class="g-row g-load"><div class="g-lab"><b>Ao mesmo tempo</b><small>${pico>1?'pico de '+pico+' paradas':'nenhuma sobreposição'}</small></div><div class="g-trk">${load}</div></div>`
+    +body+`<div class="g-cursor"><span></span></div></div>`;
+}
+function legenda(fs){
+  const used=[...new Set(fs.map(f=>UI.cor==='empresa'?f.empresa:f.pais))];
+  const cs=used.map(k=>`<span><i style="background:${UI.cor==='empresa'?(COR_EMP[k]||'#6B7280'):COR_PAIS[k]}"></i>${esc(k)}</span>`).join('');
+  return `<div class="leg">${cs}<span class="sep"></span><span><i class="stripe"></i>dias com outra parada ao mesmo tempo</span>`
+    +`<span class="sep"></span><span>Ao mesmo tempo: <i style="background:#A9CDE8"></i>1 <i style="background:var(--amber);margin-left:6px"></i>2 <i style="background:var(--orange);margin-left:6px"></i>3 <i style="background:var(--red);margin-left:6px"></i>4 ou mais</span>`
+    +`<span class="sep"></span><span><i style="background:#C9CDD3"></i>já passou${UI.contarPassadas?'':' (fora das contas)'}</span><span><i style="background:var(--red);width:2px;height:12px"></i>hoje</span></div>`;
+}
+
+/* ── Telas ── */
+const VIEWS=[['cal','Calendário'],['sob','Sobreposições'],['lista','Lista'],['rev','Revisões e fonte']];
+const anosTxt=()=>UI.anoSel==='hoje'?'de hoje em diante':anosAtivos().join(' e ');
+const ANO_OPC=()=>[...(FOCO_OK?[['hoje','De hoje em diante','Hoje →']]:[]),...ANOS.map(a=>[String(a),String(a)+' inteiro',String(a)]),['todos',ANOS.join(' e ')+' inteiros',ANOS[0]+'–'+String(ANOS[ANOS.length-1]).slice(2)]];
+function band(t,d,extra){ return `<div class="band"><div style="flex:1;min-width:260px"><h1>${t}</h1><p>${d}</p></div>${extra||''}</div>`; }
+const nomeP=p=>p.nome+' · '+p.ano;
+
+function linhasCal(r0,r1){
+  const L=[];
+  FAB.forEach(f=>{
+    if(!passaF(f)||(isOcu(f)&&!UI.verOcultas)) return;
+    const pgs=f.pgs.filter(passaP); if(!pgs.length) return;
+    if(umAno()&&UI.zoom!=='ano'&&!pgs.some(p=>p.a!=null&&p.b>=r0&&p.a<=r1)) return;   // trimestre: só o que cai nele
+    L.push({f,pgs});
+  });
+  return ordenarF(L);
+}
+function viewCal(){
+  const [r0,r1]=faixa(), rows=linhasCal(r0,r1);
+  const todasF=[...FAB.values()].filter(f=>passaF(f)&&f.pgs.some(passaP)&&(!isOcu(f)||UI.verOcultas)).length, fora=todasF-rows.length;
+  const comOv=C.A.filter(p=>C.ov.get(p.id).length);
+  const mais=[...C.A].sort((x,y)=>C.ov.get(y.id).length-C.ov.get(x.id).length)[0], nm=mais?C.ov.get(mais.id).length:0;
+  const ocN=[...FAB.values()].filter(f=>passaF(f)&&isOcu(f)).length;
+  const vis=P.filter(p=>passaP(p)&&!isOcu(p.f)&&p.a!=null), frente=vis.filter(p=>!passou(p)), nPas=vis.length-frente.length;
+  const prox=[...frente].sort((x,y)=>x.a-y.a)[0];
+  const pk=C.picos[0];
+  const kpis=`<div class="kpis">
+    <div class="kpi"><div class="lbl">Paradas pela frente</div><div class="v">${frente.length}</div><div class="d">${anosTxt()} · ${plural(nPas,'já passou','já passaram')} · ${plural(ocN,'fábrica escondida','fábricas escondidas')}</div></div>
+    <div class="kpi${prox?' click':''}" style="--kc:var(--green)" ${prox?`onclick="selecionar('${prox.id}')"`:''}><div class="lbl">Próxima parada</div><div class="v" style="font-size:17px;margin-top:8px">${prox?esc(prox.nome):'—'}</div><div class="d">${prox?fmt(prox.a)+' · '+situacao(prox):''}</div></div>
+    <div class="kpi click" style="--kc:${C.pico>=4?'var(--red)':C.pico===3?'var(--orange)':'var(--amber)'}" ${pk?`onclick="irPara(${pk.a})"`:''} title="Clique para ver esse trecho"><div class="lbl">Pico ao mesmo tempo</div><div class="v">${C.pico} <small>paradas</small></div><div class="d">${pk?C.picos.slice(0,2).map(t=>fmt(t.a).slice(0,5)+(t.a===t.b?'':' a '+fmt(t.b).slice(0,5))+'/'+String(d2date(t.b).getUTCFullYear()).slice(2)).join(' · ')+(C.picos.length>2?' · +'+(C.picos.length-2):''):'—'}</div></div>
+    <div class="kpi click" style="--kc:var(--orange)" onclick="setUI('view','sob')"><div class="lbl">Se sobrepõem</div><div class="v">${comOv.length} <small>de ${C.A.length}</small></div><div class="d">${plural(C.grupos.length,'grupo','grupos')} de paradas simultâneas →</div></div>
+    <div class="kpi${nm?' click':''}" style="--kc:var(--navy)" ${nm?`onclick="selecionar('${mais.id}')"`:''}><div class="lbl">Mais sobreposta</div><div class="v" style="font-size:17px;margin-top:8px">${nm?esc(nomeP(mais)):'—'}</div><div class="d">${nm?'junto com '+plural(nm,'outra','outras'):''}</div></div>
+  </div>`;
+  const z=UI.zoomX||1, trk=trkFit()*z;
+  const anoSeg=`<div class="segx" title="Período mostrado">${ANO_OPC().map(([k,t,c])=>`<button class="${String(UI.anoSel)===k?'on':''}" title="${t}" onclick="setAno('${k}')">${c}</button>`).join('')}</div>`;
+  const tri=!umAno()?'':`<div class="segx" title="Período do ano">${[['ano','Ano'],['t1','1º tri'],['t2','2º tri'],['t3','3º tri'],['t4','4º tri']].map(([k,t])=>`<button class="${UI.zoom===k?'on':''}" onclick="setUI('zoom','${k}')">${t}</button>`).join('')}</div>`;
+  const zoom=`<div class="zoomc" title="Ctrl + roda do mouse sobre o gráfico também amplia e reduz"><span class="lbl">Zoom</span><button class="zb" onclick="setZoom(${z}/1.5)" ${z<=1?'disabled':''} aria-label="Reduzir">−</button>`
+    +`<span class="zv">${Math.round(z*100)}%</span><button class="zb" onclick="setZoom(${z}*1.5)" ${z>=ZMAX?'disabled':''} aria-label="Ampliar">+</button>`
+    +`<button class="btn sm" onclick="setZoom(1)" ${z<=1?'disabled':''}>Caber na tela</button><small>${z>1?'arraste o gráfico ou use Shift + roda para andar pelos dias':'Ctrl + roda do mouse sobre o gráfico também amplia'}</small></div>`;
+  return band('Calendário de Paradas Andritz',`Paradas gerais dos clientes ${UI.anoSel==='hoje'?'de hoje em diante':'em '+anosTxt()}: uma linha por fábrica, uma barra por parada, a mais próxima no topo. As que já passaram ficam em cinza${UI.contarPassadas?'':' e fora das contas'}. As listras escuras marcam os dias em que a parada acontece junto com outra; a faixa “Ao mesmo tempo” mostra quantas estão rodando em cada dia. Clique numa barra para ver com quais ela se sobrepõe; o olho esconde a fábrica.`)
+   +`<div class="wrap">${kpis}<div class="card"><div class="card-h no-print"><h2>Paradas</h2>${anoSeg}${tri}${zoom}${fora?`<small style="color:var(--ink-3)">${plural(fora,'fábrica fora deste trimestre','fábricas fora deste trimestre')}</small>`:''}<span class="sp"></span><input id="busca" class="busca" placeholder="Buscar fábrica, empresa, UF…" value="${esc(UI.q)}" oninput="UI.q=this.value;render()"></div>${legenda(rows.map(x=>x.f))}<div class="gscroll alto">${rows.length?ganttHtml(rows,r0,r1,{grupos:UI.agrupar,trk:z>1?trk:null}):'<div class="vazio">Nenhuma parada com os filtros atuais.</div>'}</div></div></div>`;
+}
+function viewSob(){
+  let h='';
+  if(!C.grupos.length) h='<div class="card"><div class="vazio">Nenhuma parada se sobrepõe com o que está visível.</div></div>';
+  C.grupos.forEach((g,k)=>{
+    const so=new Set(g.L.map(p=>p.id)), r0=g.a-2, r1=g.b+2;
+    h+=`<div class="card grp-card"><div class="card-h"><h2>Grupo ${k+1}</h2><small>${fmt(g.a)} a ${fmt(g.b)} · ${plural(g.L.length,'parada','paradas')} · ${g.b-g.a+1} dias</small><span class="sp"></span>`
+      +`<span class="pico k${Math.min(g.pico,4)}">${g.pico} ao mesmo tempo · ${g.picos.map(t=>per(t.a,t.b)).join(', ')}</span></div>`
+      +`<div class="gscroll">${ganttHtml(g.L.map(p=>({f:p.f,pgs:[p]})),r0,r1,{mini:true,so,pico:g.pico})}</div></div>`;
+  });
+  const pares=C.pares.length?`<div class="card"><div class="card-h"><h2>Pares de paradas ao mesmo tempo</h2><small style="color:var(--ink-3)">${C.pares.length} pares</small></div><table class="t"><thead><tr><th>Parada</th><th>Junto com</th><th>De</th><th>Até</th><th style="text-align:right">Dias juntos</th></tr></thead><tbody>`
+    +C.pares.map(x=>`<tr><td><span class="cor" style="background:${cor(x.p.f)}"></span><a onclick="selecionar('${x.p.id}')">${esc(x.p.nome)}</a></td><td><span class="cor" style="background:${cor(x.q.f)}"></span><a onclick="selecionar('${x.q.id}')">${esc(x.q.nome)}</a></td><td class="dt">${dow(x.a)} ${fmt(x.a)}</td><td class="dt">${dow(x.b)} ${fmt(x.b)}</td><td class="n"><b>${x.b-x.a+1}</b></td></tr>`).join('')+'</tbody></table></div>':'';
+  return band('Sobreposições',`Grupos de paradas de ${anosTxt()} que se encadeiam no tempo (A junto com B, B junto com C…). Só entram as paradas visíveis: esconda as fábricas que não interessam e os grupos se refazem.`)+`<div class="wrap">${legenda(C.A.map(p=>p.f))}${h}${pares}</div>`;
+}
+function viewLista(){
+  const rows=P.filter(p=>passaP(p)).sort((x,y)=>{ const k=UI.ordem;
+    return k==='cal'?x.f.ord-y.f.ord||x.ano-y.ano:k==='emp'?x.f.empresa.localeCompare(y.f.empresa,'pt')||x.f.unidade.localeCompare(y.f.unidade,'pt')||x.ano-y.ano
+      :(x.a==null?1e9+x.ano:x.a)-(y.a==null?1e9+y.ano:y.a)||x.f.ord-y.f.ord; });
+  const tr=rows.map(p=>{ const ocu=isOcu(p.f), ov=C.ativo.has(p.id)?C.ov.get(p.id):[];
+    return `<tr class="${ocu?'ocu':''}${passou(p)?' passou':''}"><td><button class="eye" data-eye="${p.f.id}" title="${ocu?'Mostrar de novo':'Esconder'} a fábrica">${ocu?ICO.eyeOff:ICO.eye}</button></td>`
+     +`<td><span class="cor" style="background:${cor(p.f)}"></span><a onclick="selecionar('${p.id}')">${esc(p.nome)}</a>${p.destaque?'<em class="tg y">alterada</em>':''}${passou(p)?'<em class="tg g">já passou</em>':andamento(p)?'<em class="tg gr">em andamento</em>':''}</td><td>${p.ano}</td><td>${esc(p.f.pais)}${p.f.uf?' · '+p.f.uf:''}</td>`
+     +`<td class="n">${p.campanha?p.campanha+' meses':'—'}</td><td class="dt">${p.a!=null?dow(p.a)+' '+fmt(p.a):esc(p.obs||'—')}</td><td class="dt">${p.a!=null?dow(p.b)+' '+fmt(p.b):''}</td><td class="n">${p.a!=null?p.dias:''}</td>`
+     +`<td>${ov.map(x=>esc(nomeP(x.o))+` <span style="color:var(--ink-4)">(${x.b-x.a+1} d)</span>`).join('<br>')||(ocu?'<span style="color:var(--ink-4)">escondida</span>':'—')}</td><td>${esc(p.f.andritz)}</td></tr>`; }).join('');
+  return band('Lista',`Todas as paradas de ${anosTxt()} que passam nos filtros, inclusive as de fábricas escondidas (em cinza). O olho esconde ou mostra de novo a fábrica.`)
+   +`<div class="wrap"><div class="card"><div class="card-h no-print"><h2>${plural(rows.length,'parada','paradas')}</h2><span class="sp"></span><input id="busca" class="busca" placeholder="Buscar fábrica, empresa, UF…" value="${esc(UI.q)}" oninput="UI.q=this.value;render()"></div>`
+   +`<div class="gscroll"><table class="t"><thead><tr><th></th><th>Parada</th><th>Ano</th><th>País</th><th style="text-align:right">Campanha</th><th>Início</th><th>Fim</th><th style="text-align:right">Dias</th><th>Ao mesmo tempo que</th><th>DDW/bomba na base</th></tr></thead><tbody>${tr}</tbody></table></div></div></div>`;
+}
+function viewRev(){
+  const cards=[...CALS].sort((x,y)=>y.ano-x.ano).map(cal=>{
+    const r=cal.revisoes.map(v=>`<div class="rev"><b>${esc(v.t)}</b>${v.txt?`<p>${esc(v.txt)}</p>`:''}${v.itens?'<ul>'+v.itens.map(i=>`<li>${esc(i)}</li>`).join('')+'</ul>':''}${v.obs?`<p style="color:var(--ink-3);font-size:12.5px">Obs.: ${esc(v.obs)}</p>`:''}</div>`).join('');
+    const nd=cal.paradas.filter(x=>x.ini).length;
+    return `<div class="card"><div class="card-h"><h2>Calendário ${cal.ano} · ${esc(cal.rev)}</h2><small style="color:var(--ink-3)">${esc(cal.arquivo)} · emitido em ${esc(cal.emitido)} · ${cal.paradas.length} fábricas (${nd} com data)</small></div>`
+      +`<div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">${cal.nota?`<p style="font-size:13px;color:var(--ink-2)">${esc(cal.nota)}</p>`:''}<div class="revs">${r}</div></div></div>`;
+  }).join('');
+  return band('Revisões e fonte','De onde vem cada calendário e o que mudou nas revisões, conforme as notas dos próprios PDFs.')
+   +`<div class="wrap">${cards}<div class="card" style="padding:14px 16px;font-size:13px;color:var(--ink-2);line-height:1.6">`
+   +`<div class="lbl" style="margin-bottom:6px">Sobre os dados</div>As datas foram digitadas à mão a partir dos PDFs. Os horários (08:00–17:00) foram ignorados: cada parada conta do primeiro ao último dia, inclusive. A mesma fábrica nos dois anos fica numa linha só; “↔ N meses”, abaixo do nome, é a distância entre o início das PGs.<br>`
+   +`A marca <em class="tg y">alterada</em> = linha destacada em amarelo no PDF. A marca <em class="tg b">DDW/bomba</em> = fábrica com DD Washer ou bomba de cavaco na Base Instalada do <b>Controle de Itens de Consumo</b> (cópia de 28/10/2026, não se atualiza sozinha).<br>`
+   +`O que você esconde e os filtros ficam guardados só neste navegador.</div></div>`;
+}
+
+function viewSide(){
+  const cnt=pa=>[...FAB.values()].filter(f=>f.pais===pa).length;
+  const oc=[...FAB.values()].filter(isOcu);
+  return `<div class="side-grp">Visão</div>`
+   +VIEWS.map(([k,t])=>`<button class="snav${UI.view===k?' on':''}" onclick="setUI('view','${k}')"><span>${t}</span>${k==='sob'&&C.grupos.length?`<span class="cnt">${C.grupos.length}</span>`:''}</button>`).join('')
+   +`<div class="side-grp">Período</div>`
+   +ANO_OPC().map(([k,t])=>`<label class="sopt"><input type="radio" name="anoSel" ${String(UI.anoSel)===k?'checked':''} onchange="setAno('${k}')">${t}</label>`).join('')
+   +`<div class="side-grp">Países</div>`
+   +PAISES.map(pa=>`<label class="sopt"><input type="checkbox" ${UI.paises[pa]!==false?'checked':''} onchange="setPais('${pa}',this.checked)"><i class="cor" style="background:${COR_PAIS[pa]};margin:0"></i>${pa}<a class="so" onclick="event.preventDefault();soPais('${pa}')">só</a><span class="n">${cnt(pa)}</span></label>`).join('')
+   +`<div class="side-grp">Filtros</div>`
+   +`<label class="sopt"><input type="checkbox" ${UI.soAndritz?'checked':''} onchange="setUI('soAndritz',this.checked)">Só fábricas com DDW/bomba</label>`
+   +`<label class="sopt"><input type="checkbox" ${UI.semData?'checked':''} onchange="setUI('semData',this.checked)">Fábricas sem parada no ano</label>`
+   +`<div class="hint" style="margin-top:8px">Paradas que já passaram</div>`
+   +`<label class="sopt"><input type="checkbox" ${UI.verPassadas?'checked':''} onchange="setUI('verPassadas',this.checked)">Mostrar em cinza</label>`
+   +`<label class="sopt"><input type="checkbox" ${UI.contarPassadas?'checked':''} onchange="setUI('contarPassadas',this.checked)">Contar nas sobreposições</label>`
+   +`<div class="side-grp">Organizar</div>`
+   +`<select class="ssel" onchange="setUI('ordem',this.value)">${[['data','Ordenar por data'],['cal','Ordem do calendário'],['emp','Ordenar por empresa']].map(([k,t])=>`<option value="${k}"${UI.ordem===k?' selected':''}>${t}</option>`).join('')}</select>`
+   +`<label class="sopt"><input type="checkbox" ${UI.agrupar?'checked':''} onchange="setUI('agrupar',this.checked)">Separar por país</label>`
+   +`<div class="hint" style="margin-top:6px">Cores por</div><div class="seg"><button class="${UI.cor==='pais'?'on':''}" onclick="setUI('cor','pais')">País</button><button class="${UI.cor==='empresa'?'on':''}" onclick="setUI('cor','empresa')">Empresa</button></div>`
+   +`<div class="side-grp">Escondidas (${oc.length})</div>`
+   +(oc.length?`<label class="sopt sub"><input type="checkbox" ${UI.verOcultas?'checked':''} onchange="setUI('verOcultas',this.checked)">Mostrar em cinza no gráfico</label><div class="ocu-list">${oc.map(f=>`<div><span title="${esc(f.nome)}">${esc(f.nome)}</span><a onclick="toggleOcu('${f.id}')">mostrar</a></div>`).join('')}</div><div style="padding:8px 22px"><button class="btn sm" onclick="mostrarTodas()">Mostrar todas</button></div>`
+     :`<div class="hint">Nenhuma. Use o olho ao lado do nome da fábrica para escondê-la.</div>`);
+}
+function viewDrawer(){
+  const p=SEL&&PID[SEL]; if(!p) return '';
+  const f=p.f, ativo=C.ativo.has(p.id), ov=ativo?C.ov.get(p.id):[], ant=prevPg(p);
+  const tabs=f.pgs.length>1?`<div class="pgtabs">${f.pgs.map(x=>`<button class="${x.id===p.id?'on':''}" onclick="selecionar('${x.id}')">PG ${x.ano}</button>`).join('')}</div>`:'';
+  const lista=ov.length?`<div class="ovl">${ov.map(x=>`<a style="--c:${cor(x.o.f)}" onclick="selecionar('${x.o.id}')"><b>${esc(x.o.nome)}</b><small>${per(x.o.a,x.o.b)}/${x.o.ano} · juntas de ${per(x.a,x.b)} — <em>${plural(x.b-x.a+1,'dia','dias')}</em></small></a>`).join('')}</div>`
+    :`<div style="color:var(--ink-3);font-size:13px">${!ativo?(isOcu(f)?'Esta fábrica está escondida, por isso não entra na conta.':p.a==null?'Sem data no calendário.':passou(p)&&!UI.contarPassadas?'Esta parada já aconteceu e está fora das contas (barra lateral: “Contar nas sobreposições”).':'Fora dos filtros atuais (período ou país).'):'Nenhuma outra parada visível acontece ao mesmo tempo.'}</div>`;
+  return `<div class="dr-h"><div><h3>${esc(f.nome)}</h3><p>${esc(f.pais)}${f.uf?' · '+f.uf:''} · PG ${p.ano}</p></div><button class="dr-x" onclick="selecionar(null)" title="Fechar (Esc)">×</button></div>`
+   +`<div class="dr-b">${tabs}<dl class="kv"><dt>Início</dt><dd>${p.a!=null?dow(p.a)+' '+fmt(p.a):esc(p.obs||'—')}</dd><dt>Fim</dt><dd>${p.a!=null?dow(p.b)+' '+fmt(p.b):'—'}</dd>`
+   +`<dt>Duração</dt><dd>${p.a!=null?plural(p.dias,'dia','dias'):'—'}</dd>${p.a!=null?`<dt>Situação</dt><dd>${situacao(p)}</dd>`:''}<dt>Campanha</dt><dd>${p.campanha?p.campanha+' meses':'—'}</dd>`
+   +(ant&&p.a!=null?`<dt>Desde a PG ${ant.ano}</dt><dd>${meses(ant.a,p.a)} meses (início ${fmt(ant.a)})</dd>`:'')
+   +(f.andritz?`<dt>DDW/bomba</dt><dd>${esc(f.andritz)}</dd>`:'')+`<dt>Fonte</dt><dd>${esc(p.cal.arquivo)}</dd></dl>`
+   +(p.destaque?'<div class="aviso">Linha destacada em amarelo no calendário: data alterada nas revisões (veja “Revisões e fonte”).</div>':'')
+   +`<div><div class="lbl" style="margin-bottom:6px">Ao mesmo tempo que (${ov.length})</div>${lista}</div>`
+   +`<div class="dr-acts">${p.a!=null&&ativo?`<button class="btn" onclick="irPara(${p.a})">Ver no calendário</button>`:''}${ov.length?`<button class="btn" onclick="isolar('${p.id}')">Mostrar só esta e as sobrepostas</button>`:''}<button class="btn" onclick="toggleOcu('${f.id}')">${isOcu(f)?'Mostrar a fábrica de novo':'Esconder esta fábrica'}</button></div></div>`;
+}
+
+/* ── Ações ── */
+function setUI(k,v){ UI[k]=v; save(); render(); if(k==='view') window.scrollTo(0,0); }
+function setAno(a){ UI.anoSel=(a==='todos'||a==='hoje')?a:+a; if(!umAno()) UI.zoom='ano'; save(); render(); focarHoje(); }
+// Com o gráfico ampliado, rola até hoje (o passado fica à esquerda, fora da vista)
+function focarHoje(){
+  const sc=document.querySelector('#main .gscroll.alto'), g=sc&&sc.querySelector('.gantt'); if(!g) return;
+  const [r0,r1]=g.dataset.r.split(',').map(Number); if(HOJE<r0||HOJE>r1) return;
+  const w=sc.querySelector('.g-head .g-trk').getBoundingClientRect().width;
+  sc.scrollLeft=Math.max(0,(HOJE-r0)/(r1-r0+1)*w-60);
+}
+function setPais(pa,v){ UI.paises[pa]=v; save(); render(); }
+function soPais(pa){ PAISES.forEach(x=>UI.paises[x]=x===pa); save(); render(); }
+function toggleOcu(id){ const i=UI.ocultas.indexOf(id); if(i>=0) UI.ocultas.splice(i,1); else UI.ocultas.push(id); save(); render(); }
+function mostrarTodas(){ UI.ocultas=[]; save(); render(); }
+function isolar(id){ const manter=new Set([PID[id].f.id,...C.ov.get(id).map(x=>x.o.f.id)]); FAB.forEach(f=>{ if(passaF(f)&&!manter.has(f.id)&&!isOcu(f)) UI.ocultas.push(f.id); }); save(); render(); }
+function selecionar(id){ SEL=id||null; render(); }
+// Zoom: multiplica a largura que cabe na tela (1 = 100% = cabe sem rolar). Mantém parado o dia sob o mouse
+// (Ctrl + roda) ou o do meio da área visível (botões).
+const ZMAX=20;
+const labW=()=>innerWidth<=900?190:300;
+function trkFit(){ const m=document.getElementById('main'), pad=innerWidth<=900?34:58;
+  return Math.max((m?m.clientWidth:1200)-pad, innerWidth<=900?820:0)-labW(); }
+function setZoom(z,cx){
+  z=Math.min(ZMAX,Math.max(1,z)); if(Math.abs(z-(UI.zoomX||1))<1e-3) return;
+  const sc=document.querySelector('#main .gscroll.alto'), hd=sc&&sc.querySelector('.g-head .g-trk');
+  let f=null, off=null;
+  if(sc&&hd){ const s=sc.getBoundingClientRect(), h=hd.getBoundingClientRect();
+    if(cx==null||cx<s.left+labW()) cx=s.left+labW()+(s.width-labW())/2;
+    f=(cx-h.left)/h.width; off=cx-s.left; }
+  UI.zoomX=z; save(); render();
+  const sc2=document.querySelector('#main .gscroll.alto'), hd2=sc2&&sc2.querySelector('.g-head .g-trk');
+  if(f!=null&&hd2) sc2.scrollLeft=labW()+f*hd2.getBoundingClientRect().width-off;
+}
+// Leva o calendário até o dia d: com um ano escolhido, abre o trimestre; com todos, amplia e rola até lá
+function irPara(d){
+  const y=d2date(d).getUTCFullYear(); UI.view='cal';
+  if(umAno()){ UI.anoSel=y; UI.zoom=d<iso2d(y+'-04-01')?'t1':d<iso2d(y+'-07-01')?'t2':d<iso2d(y+'-10-01')?'t3':'t4'; }
+  else if((UI.zoomX||1)<4) UI.zoomX=4;
+  save(); render();
+  const sc=document.querySelector('#main .gscroll.alto'), g=sc&&sc.querySelector('.gantt');
+  if(sc&&g){ const [r0,r1]=g.dataset.r.split(',').map(Number), w=sc.querySelector('.g-head .g-trk').getBoundingClientRect().width;
+    sc.scrollLeft=Math.max(0,labW()+(d-r0)/(r1-r0+1)*w-(sc.clientWidth-labW())/3); sc.scrollIntoView({block:'start',behavior:'smooth'}); }
+}
+
+function render(){
+  C=calc();
+  const f=document.activeElement&&document.activeElement.id, pos=f&&document.activeElement.selectionStart;
+  const sc0=document.querySelector('#main .gscroll.alto'), rol=sc0&&{t:sc0.scrollTop,l:sc0.scrollLeft};
+  document.getElementById('sub').textContent='Calendários de PGs '+CALS.map(c=>c.ano+' ('+c.rev+')').join(' e ');
+  document.getElementById('side').innerHTML=viewSide();
+  document.getElementById('main').innerHTML=({cal:viewCal,sob:viewSob,lista:viewLista,rev:viewRev}[UI.view]||viewCal)();
+  const dr=document.getElementById('drawer'); dr.innerHTML=viewDrawer(); dr.classList.toggle('open',!!(SEL&&PID[SEL]));
+  if(f){ const el=document.getElementById(f); if(el){ el.focus(); try{ el.setSelectionRange(pos,pos); }catch(e){} } }
+  const sc1=document.querySelector('#main .gscroll.alto'); if(sc1&&rol){ sc1.scrollTop=rol.t; sc1.scrollLeft=rol.l; }
+}
+document.addEventListener('wheel',e=>{
+  if(!e.ctrlKey||!e.target.closest('#main .gscroll.alto')) return;
+  e.preventDefault(); setZoom((UI.zoomX||1)*(e.deltaY<0?1.25:0.8),e.clientX);
+},{passive:false});
+// Arrastar o gráfico com o mouse rola para os lados e para cima/baixo; arrasto não conta como clique na parada
+let _arr=null, _arrastou=false;
+document.addEventListener('pointerdown',e=>{
+  const sc=e.button===0&&e.target.closest('#main .gscroll.alto');
+  if(!sc||e.target.closest('.g-lab,button,input,a')) return;
+  _arr={sc,x:e.clientX,y:e.clientY,l:sc.scrollLeft,t:sc.scrollTop,mov:false}; _arrastou=false;
+});
+document.addEventListener('pointermove',e=>{
+  if(!_arr) return; const dx=e.clientX-_arr.x, dy=e.clientY-_arr.y;
+  if(!_arr.mov&&Math.abs(dx)+Math.abs(dy)<5) return;
+  _arr.mov=true; _arr.sc.classList.add('arrastando'); _arr.sc.scrollLeft=_arr.l-dx; _arr.sc.scrollTop=_arr.t-dy;
+});
+document.addEventListener('pointerup',()=>{ if(_arr){ _arrastou=_arr.mov; _arr.sc.classList.remove('arrastando'); _arr=null; } });
+document.addEventListener('click',e=>{ if(_arrastou){ _arrastou=false; e.stopPropagation(); e.preventDefault(); } },true);
+let _rz=null; addEventListener('resize',()=>{ clearTimeout(_rz); _rz=setTimeout(render,150); });
+
+/* ── Eventos: clique, dica e linha do cursor ── */
+document.addEventListener('click',e=>{
+  const eye=e.target.closest('[data-eye]'); if(eye){ e.stopPropagation(); toggleOcu(eye.dataset.eye); return; }
+  const bar=e.target.closest('.bar[data-id]'); if(bar){ selecionar(bar.dataset.id===SEL?null:bar.dataset.id); return; }
+  const r=e.target.closest('[data-sel]'); if(r){ selecionar(r.classList.contains('is-sel')?null:r.dataset.sel); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&SEL){ SEL=null; render(); } });
+const tip=document.getElementById('tip');
+document.addEventListener('mousemove',e=>{
+  const b=e.target.closest('[data-id],[data-tr]');
+  if(b){
+    let h='';
+    if(b.dataset.id){ const p=PID[b.dataset.id], ov=C.ov.get(p.id)||[];
+      h=`<b>${esc(p.nome)}</b> · PG ${p.ano}<br>${dow(p.a)} ${fmt(p.a)} a ${dow(p.b)} ${fmt(p.b)} · ${plural(p.dias,'dia','dias')}<br><i>${situacao(p)}</i>`
+       +(ov.length?`<br><span style="color:var(--red);font-weight:700">Ao mesmo tempo que ${plural(ov.length,'outra','outras')}:</span><ul>${ov.map(x=>`<li>${esc(x.o.nome)} — ${plural(x.b-x.a+1,'dia','dias')}</li>`).join('')}</ul>`:'<br>Nenhuma outra ao mesmo tempo');
+    } else { const t=C.trechos[+b.dataset.tr];
+      h=`<b>${t.a===t.b?dow(t.a)+' '+fmt(t.a):fmt(t.a)+' a '+fmt(t.b)}</b> · ${plural(t.L.length,'parada','paradas')}<ul>${t.L.map(p=>`<li>${esc(p.nome)}</li>`).join('')}</ul>`; }
+    tip.innerHTML=h; tip.style.display='block';
+    const w=tip.offsetWidth, hh=tip.offsetHeight;
+    tip.style.left=Math.min(e.clientX+14,innerWidth-w-8)+'px'; tip.style.top=(e.clientY+hh+20>innerHeight?e.clientY-hh-12:e.clientY+16)+'px';
+  } else tip.style.display='none';
+  // linha vertical com a data sob o mouse
+  document.querySelectorAll('.g-cursor').forEach(c=>c.style.display='none');
+  const g=e.target.closest('.gantt'); if(!g) return;
+  const tr=g.querySelector('.g-head .g-trk').getBoundingClientRect(), x=e.clientX-tr.left;
+  if(x<0||x>=tr.width) return;
+  const [r0,r1]=g.dataset.r.split(',').map(Number), d=r0+Math.floor(x/tr.width*(r1-r0+1)), q=naData(d).length;
+  const cur=g.querySelector('.g-cursor'); cur.style.display='block'; cur.style.left=(tr.left-g.getBoundingClientRect().left+x)+'px';
+  cur.classList.toggle('esq',x>tr.width-170);
+  cur.firstChild.textContent=`${dow(d)} ${fmt(d)} · ${q?plural(q,'parada','paradas'):'nenhuma parada'}`;
+});
+
+// Endereço direto (não fica guardado): #view=sob · #ano=2026|2027|todos · #zoom=t3 · #zx=4 · #sel=<id da parada>
+(function(){ const h=new URLSearchParams(location.hash.slice(1));
+  if(h.get('view')&&VIEWS.some(v=>v[0]===h.get('view'))) UI.view=h.get('view');
+  const an=h.get('ano'); if(an&&(an==='todos'||(an==='hoje'&&FOCO_OK)||ANOS.includes(+an))) UI.anoSel=(an==='todos'||an==='hoje')?an:+an;
+  if(h.get('zoom')) UI.zoom=h.get('zoom');
+  if(h.get('zx')) UI.zoomX=Math.min(ZMAX,Math.max(1,+h.get('zx')||1));
+  if(h.get('sel')&&PID[h.get('sel')]) SEL=h.get('sel'); })();
+render(); focarHoje();
+</script>
+</body>
+</html>

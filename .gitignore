@@ -1,0 +1,5 @@
+# Fontes em PDF e documentação interna ficam só no OneDrive (decisão do usuário, 28/10/2026)
+*.pdf
+CLAUDE.md
+__pycache__/
+*.tmp
