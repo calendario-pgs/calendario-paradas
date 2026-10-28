@@ -2,7 +2,7 @@
 
 Calendário das paradas gerais (PG) de 2026 e 2027 num gráfico de Gantt, com uma linha por fábrica e uma barra por PG. Mostra quais paradas acontecem ao mesmo tempo e quantas estão rodando em cada dia. As paradas que já passaram ficam em cinza.
 
-**Abrir:** <https://seabragbr.github.io/calendario-paradas/>, ou o arquivo `Calendario_PGs.html`, que funciona sem internet.
+**Abrir:** <https://calendario-pgs.github.io/calendario-paradas/>, ou o arquivo `Calendario_PGs.html`, que funciona sem internet.
 
 ## Arquivos
 
